@@ -1,8 +1,8 @@
 class Node(object):
-
     _key: int
     _dist: float
     _visited: bool
+    _component: int
 
     def __init__(self, key: int):
         self._key = key
@@ -23,3 +23,9 @@ class Node(object):
 
     def set_visited(self, visited: bool) -> None:
         self._visited = visited
+
+    def get_component(self) -> int:
+        return self._component
+
+    def set_component(self, component: int) -> None:
+        self._component = component
