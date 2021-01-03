@@ -10,13 +10,13 @@ from GraphAlgoInterface import GraphAlgoInterface
 
 class GraphAlgo(GraphAlgoInterface):
     _graph: GraphInterface
-    _path: dict
 
     _nodes: dict
     # todo: change all self._nodes to self.graph().get_all_v()
     _nis: dict
     # todo: change all self._nodes to self.graph().all_out_edges_of_node()
     _re_nis: dict
+
     # todo: change all self._nodes to self.graph().all_in_edges_of_node()
 
     # def __init__(self, graph: GraphInterface):
@@ -41,17 +41,21 @@ class GraphAlgo(GraphAlgoInterface):
     def shortest_path(self, id1: int, id2: int) -> (float, list):
         n1: Node = self.get_graph().get_all_v().get(id1)
         n2: Node = self.get_graph().get_all_v().get(id1)
-        self._dijkstra(n1)
-        shortest_path = self._reconstruct_path(id2)
+        self._reset_values()
+        # calculate the shortest path from id1 to id2
+        shortest_path = self._reconstruct_path(id2, self._dijkstra(n1))
         return n2.get_dist(), shortest_path
 
     def connected_component(self, id1: int) -> list:
-        path, re_path = self._scc(id1)
+        # getting the two paths of the graph and the transpose graph
+        path, transpose_path = self._scc(id1)
         component = []
         for i in path:
-            if i in re_path:
-                # self.get_graph().get_all_v().get(i).set_component(id1)
-                self._nodes.get(i).set_component(id1)
+            if i in transpose_path:
+                # looping over the paths and checking whether the node is in both paths
+                # if he is in both paths he is part of the component.
+                # setting him a component id and appending him to the component list
+                self.get_graph().get_all_v().get(i).set_component(id1)
                 component.append(i)
         return component
 
@@ -60,6 +64,8 @@ class GraphAlgo(GraphAlgoInterface):
         self._reset_components()
         for n in self._nodes:
             if self._nodes.get(n).get_component() is not None:
+                # looping on all nodes and checking if he is part of component already
+                # if not check is component and append his component list to the components list
                 components.append(self.connected_component(n))
         return components
 
@@ -67,75 +73,91 @@ class GraphAlgo(GraphAlgoInterface):
     def plot_graph(self) -> None:
         return
 
-    def _dijkstra(self, src: Node) -> int:
+    def _dijkstra(self, src: Node) -> dict:
+        # create empty minimum heap
+        # the elements in the heap should be a tuple that hold two elements
+        # the first is the distance from the src node to the current node, the second is the node himself
         heap: hq = []
-        self._path = {}
         src.set_dist(0)
         src.set_visited(True)
         hq.heappush(heap, (0, src))
-        visit_count: int = 1
-        self._path[0] = None
+        # create new dictionary of the path, every key holds up his parent node
+        # the parent of the src is None
+        path = {src: None}
 
         while len(heap) > 0:
+            # pooping out the minimum element from the heap
             node = hq.heappop(heap)[1]
-            if node.get_visited():
+            if not node.get_visited():
+                # if the node wasn't visited yet set the visit to true
                 node.set_visited(True)
-                visit_count += visit_count
-            # todo: break if got to dest
             edges = self.get_graph().all_out_edges_of_node(self._graph, node.get_key())
+            # looping over all the edges the going out of the node
             for e in edges:
-                # todo: get node
                 ni: Node = self.get_graph().get_all_v().get(e)
-                if not ni.get_visited:
+                if not ni.get_visited():
+                    # if the node wasn't visited yet calculate the distance from the src node to this node
+                    # and check if the distance is lower then the previous distance
+                    # (assuming the distances initialized to infinity (in this case -1 is infinity))
                     dist = node.get_dist() + edges.get(e)
                     if ni.get_dist() == -1 or dist < ni.get_dist():
+                        # updating the distance, adding the node t the heap and updating the parent of the node
                         ni.set_dist(dist)
                         hq.heappush(heap, (dist, ni))
-                        self._path[ni.get_key()] = node.get_key()
-        return visit_count
+                        path[ni.get_key()] = node.get_key()
+        return path
 
-    def _reconstruct_path(self, dest: int) -> list:
-        shortest_path = []
-        i = self._path.get(dest)
-        while i is not None:
-            shortest_path.insert(0, i)
-            i = self._path.get(i)
+    def _reconstruct_path(self, dest: int, path: dict) -> list:
+        shortest_path = [dest]
+        parent = path.get(dest)
+        # reconstructing the path using the path dictionary into a list starting from the dest key
+        while parent is not None:
+            # wile we didn't get to the src node that his parent is None
+            # insert the parent to the list and go to the next parent
+            shortest_path.insert(0, parent)
+            parent = path.get(parent)
         return shortest_path
 
     def _scc(self, id1: int) -> tuple:
+        # making two paths with the dfs algorithm, one of the graph and the second of the transpose graph
+        # and returning them as a tuple
         self._reset_values()
         dfs_path = self._dfs(id1, False)
         self._reset_values()
-        dfs_re_path = self._dfs(id1, True)
-        return dfs_path, dfs_re_path
+        dfs_transpose_path = self._dfs(id1, True)
+        return dfs_path, dfs_transpose_path
 
-    def _dfs(self, id1: int, reverse: bool, s=None) -> set:
-        if s is None:
-            s = set()
-        # nodes: dict = self.get_graph().get_all_v()
-        # nodes.get(id1).set_visited(True)
-        self._nodes.get(id1).set_visited(True)  # todo: delete
-        s.add(id1)
+    def _dfs(self, id1: int, reverse: bool, path=None) -> set:
+        # initializing the path to be an empty set if we didn't go him from the function call
+        if path is None:
+            path = set()
+        nodes: dict = self.get_graph().get_all_v()
+        nodes.get(id1).set_visited(True)
+        # adding the node id to the path
+        path.add(id1)
 
         if reverse:
-            # nis = self.get_graph().all_in_edges_of_node(id1)
-            nis = self._re_nis.get(id1)  # todo: delete
+            # if we are looking for the path in transpose graph take all in edges of a node
+            # else take all the out edges of a node
+            neighbors = self.get_graph().all_in_edges_of_node(id1)
         else:
-            # nis = self.get_graph().all_out_edges_of_node(id1)
-            nis = self._nis.get(id1)  # todo: delete
-        if nis is not None:
-            for ni in nis:
-                if not self._nodes.get(ni).get_visited():  # todo: delete
-                    # if not nodes.get(ni).get_visited():
-                    self._dfs(ni, reverse, s)
-        return s
+            neighbors = self.get_graph().all_out_edges_of_node(id1)
+        if neighbors is not None:
+            for ni in neighbors:
+                # if we didn't visit the node visit him and his neighbors by recursive call to this method
+                if not nodes.get(ni).get_visited():
+                    self._dfs(ni, reverse, path)
+        return path
 
     def _reset_values(self):
-        # nodes: dict = self.get_graph().get_all_v()
-        for n in self._nodes:  # todo: change
-            self._nodes.get(n).set_visited(False)  # todo: change
+        nodes: dict = self.get_graph().get_all_v()
+        # reset all node values of visited to false and distance to -1
+        for n in self._nodes:
+            nodes.get(n).set_visited(False)
+            nodes.get(n).set_dist(-1)
 
     def _reset_components(self):
-        # nodes: dict = self.get_graph().get_all_v()
-        for n in self._nodes:  # todo: change
-            self._nodes.get(n).set_component(None)  # todo: change
+        nodes: dict = self.get_graph().get_all_v()
+        # reset all node values of component to None
+        for n in nodes:
+            nodes.get(n).set_component(None)
