@@ -1,32 +1,18 @@
 import json
-import math
 import heapq as hq
 from Node import Node
 from typing import List
 from DiGraph import DiGraph
-from src import GraphInterface
 import matplotlib.pyplot as plt
+from GraphInterface import GraphInterface
 from GraphAlgoInterface import GraphAlgoInterface
 
 
 class GraphAlgo(GraphAlgoInterface):
     _graph: GraphInterface
 
-    _nodes: dict
-    # todo: change all self._nodes to self.graph().get_all_v()
-    _nis: dict
-    # todo: change all self._nodes to self.graph().all_out_edges_of_node()
-    _re_nis: dict
-
-    # todo: change all self._nodes to self.graph().all_in_edges_of_node()
-
-    # def __init__(self, graph: GraphInterface):
-    #     self._graph = graph
-
-    def __init__(self, nodes: dict, nis: dict, re_nis: dict):  # todo: delete
-        self._nodes = nodes
-        self._nis = nis
-        self._re_nis = re_nis
+    def __init__(self, graph: GraphInterface = None):
+        self._graph = graph
 
     def get_graph(self) -> GraphInterface:
         return self._graph
@@ -55,11 +41,13 @@ class GraphAlgo(GraphAlgoInterface):
 
     def shortest_path(self, id1: int, id2: int) -> (float, list):
         n1: Node = self.get_graph().get_all_v().get(id1)
-        n2: Node = self.get_graph().get_all_v().get(id1)
+        n2: Node = self.get_graph().get_all_v().get(id2)
+        if n1 is None or n2 is None:
+            return float('inf'), []
         self._reset_values()
         # calculate the shortest path from id1 to id2
         shortest_path = self._reconstruct_path(id2, self._dijkstra(n1))
-        # todo: return empty list
+        # print(self.get_graph().get_all_v().get(id2).get_dist())
         return n2.get_dist(), shortest_path
 
     def connected_component(self, id1: int) -> list:
@@ -78,8 +66,9 @@ class GraphAlgo(GraphAlgoInterface):
     def connected_components(self) -> List[list]:
         components = []
         self._reset_components()
-        for n in self._nodes:
-            if self._nodes.get(n).get_component() is None:
+        nodes: dict = self.get_graph().get_all_v()
+        for n in nodes:
+            if nodes.get(n).get_component() is None:
                 # looping on all nodes and checking if he is part of component already
                 # if not check is component and append his component list to the components list
                 components.append(self.connected_component(n))
@@ -87,21 +76,21 @@ class GraphAlgo(GraphAlgoInterface):
 
     # todo:
     def plot_graph(self) -> None:
-        nodes = self._nodes
-        edges = self._nis
+        nodes: dict = self.get_graph().get_all_v()
         ax = plt.axes()
-        for n in self._nodes:
+        for n in nodes:
             x = (nodes.get(n).get_x())
             y = (nodes.get(n).get_y())
             plt.scatter(x, y, c='b', s=50)
-            if edges.get(n) is not None:
-                for e in edges.get(n):
-                    r = 0.1 * edges.get(n).get(e)
-                    dx = nodes.get(e).get_x() - nodes.get(n).get_x()
-                    dy = nodes.get(e).get_y() - nodes.get(n).get_y()
-                    ax.arrow(nodes.get(n).get_x(), nodes.get(n).get_y(),
-                             dx, dy, length_includes_head=True,
-                             head_width=r, head_length=r, fc='k', ec='k')
+            edges: dict = self.get_graph().all_out_edges_of_node(n)
+            for e in edges:
+                # r = 0.03 * edges.get(e)
+                r = 0.1
+                dx = nodes.get(e).get_x() - x
+                dy = nodes.get(e).get_y() - y
+                ax.arrow(x, y,
+                         dx, dy, length_includes_head=True,
+                         head_width=r, head_length=r, fc='k', ec='k')
         plt.show()
         return
 
@@ -186,7 +175,7 @@ class GraphAlgo(GraphAlgoInterface):
     def _reset_values(self):
         nodes: dict = self.get_graph().get_all_v()
         # reset all node values of visited to false and distance to -1
-        for n in self._nodes:
+        for n in nodes:
             nodes.get(n).set_visited(False)
             nodes.get(n).set_dist(float('inf'))
 

@@ -1,8 +1,9 @@
 import unittest
-from src.DiGraph import DiGraph
+from DiGraph import DiGraph
 
 
-class MyTestCase(unittest.TestCase):
+class TestGraphDi(unittest.TestCase):
+
     def test_addNode(self):
         g = DiGraph()
         for n in range(4):
@@ -13,7 +14,6 @@ class MyTestCase(unittest.TestCase):
         g.add_edge(0, 2, 2.2)
         print(g.all_out_edges_of_node(0))
         self.assertEqual(g.e_size(), 2)
-
 
 
 if __name__ == '__main__':

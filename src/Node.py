@@ -43,3 +43,6 @@ class Node(object):
 
     def get_y(self) -> float:
         return self._pos[1]
+
+    def __repr__(self):
+        return f'id: {self._key}, pos: {self._pos}'
