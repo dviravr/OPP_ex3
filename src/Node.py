@@ -3,8 +3,10 @@ class Node(object):
     _dist: float
     _visited: bool
     _component: int
+    _pos : tuple
 
-    def __init__(self, key: int):
+    def __init__(self, key: int ,pos:tuple = None):
+        self._pos = pos
         self._key = key
         self._dist = -1
         self._visited = False
@@ -29,3 +31,14 @@ class Node(object):
 
     def set_component(self, component: int) -> None:
         self._component = component
+    def get_pos(self) -> tuple :
+        return self._pos
+    def set_pos(self,pos: tuple)-> None:
+        self._pos = pos
+"""
+    def __str__(self):
+        return "{" +
+        "id=" + self._key +
+        ", pos=" + _pos +
+        '}'
+"""
