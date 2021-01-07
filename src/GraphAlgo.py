@@ -1,11 +1,12 @@
+import json
+import math
 import heapq as hq
-from typing import List
 from Node import Node
+from typing import List
+from DiGraph import DiGraph
 from src import GraphInterface
+import matplotlib.pyplot as plt
 from GraphAlgoInterface import GraphAlgoInterface
-
-
-# from DiGraph import DiGraph
 
 
 class GraphAlgo(GraphAlgoInterface):
@@ -30,12 +31,26 @@ class GraphAlgo(GraphAlgoInterface):
     def get_graph(self) -> GraphInterface:
         return self._graph
 
-    # todo:
     def load_from_json(self, file_name: str) -> bool:
-        return False
+        graph: GraphInterface = DiGraph()
+        with open(file_name, 'r') as json_file:
+            data = json.load(json_file)
+            for n in data["Nodes"]:
+                if "pos" in n:
+                    p = n["pos"].split(",")
+                    pos = float(p[0]), float(p[1]), float(p[2])
+                    graph.add_node(n["id"], pos)
+                else:
+                    graph.add_node(n["id"])
+            for e in data["Edges"]:
+                graph.add_edge(e["src"], e["dest"], e["w"])
+            self._graph = graph
+        return True
 
     # todo:
     def save_to_json(self, file_name: str) -> bool:
+        with open(file_name, 'w') as json_file:
+            print()
         return False
 
     def shortest_path(self, id1: int, id2: int) -> (float, list):
@@ -44,6 +59,7 @@ class GraphAlgo(GraphAlgoInterface):
         self._reset_values()
         # calculate the shortest path from id1 to id2
         shortest_path = self._reconstruct_path(id2, self._dijkstra(n1))
+        # todo: return empty list
         return n2.get_dist(), shortest_path
 
     def connected_component(self, id1: int) -> list:
@@ -63,7 +79,7 @@ class GraphAlgo(GraphAlgoInterface):
         components = []
         self._reset_components()
         for n in self._nodes:
-            if self._nodes.get(n).get_component() is not None:
+            if self._nodes.get(n).get_component() is None:
                 # looping on all nodes and checking if he is part of component already
                 # if not check is component and append his component list to the components list
                 components.append(self.connected_component(n))
@@ -71,6 +87,22 @@ class GraphAlgo(GraphAlgoInterface):
 
     # todo:
     def plot_graph(self) -> None:
+        nodes = self._nodes
+        edges = self._nis
+        ax = plt.axes()
+        for n in self._nodes:
+            x = (nodes.get(n).get_x())
+            y = (nodes.get(n).get_y())
+            plt.scatter(x, y, c='b', s=50)
+            if edges.get(n) is not None:
+                for e in edges.get(n):
+                    r = 0.1 * edges.get(n).get(e)
+                    dx = nodes.get(e).get_x() - nodes.get(n).get_x()
+                    dy = nodes.get(e).get_y() - nodes.get(n).get_y()
+                    ax.arrow(nodes.get(n).get_x(), nodes.get(n).get_y(),
+                             dx, dy, length_includes_head=True,
+                             head_width=r, head_length=r, fc='k', ec='k')
+        plt.show()
         return
 
     def _dijkstra(self, src: Node) -> dict:
@@ -91,7 +123,7 @@ class GraphAlgo(GraphAlgoInterface):
             if not node.get_visited():
                 # if the node wasn't visited yet set the visit to true
                 node.set_visited(True)
-            edges = self.get_graph().all_out_edges_of_node(self._graph, node.get_key())
+            edges = self.get_graph().all_out_edges_of_node(node.get_key())
             # looping over all the edges the going out of the node
             for e in edges:
                 ni: Node = self.get_graph().get_all_v().get(e)
@@ -108,6 +140,8 @@ class GraphAlgo(GraphAlgoInterface):
         return path
 
     def _reconstruct_path(self, dest: int, path: dict) -> list:
+        if path.get(dest) is None:
+            return []
         shortest_path = [dest]
         parent = path.get(dest)
         # reconstructing the path using the path dictionary into a list starting from the dest key
@@ -127,7 +161,7 @@ class GraphAlgo(GraphAlgoInterface):
         dfs_transpose_path = self._dfs(id1, True)
         return dfs_path, dfs_transpose_path
 
-    def _dfs(self, id1: int, reverse: bool, path=None) -> set:
+    def _dfs(self, id1: int, reverse: bool, path: set = None) -> set:
         # initializing the path to be an empty set if we didn't go him from the function call
         if path is None:
             path = set()
@@ -154,7 +188,7 @@ class GraphAlgo(GraphAlgoInterface):
         # reset all node values of visited to false and distance to -1
         for n in self._nodes:
             nodes.get(n).set_visited(False)
-            nodes.get(n).set_dist(-1)
+            nodes.get(n).set_dist(float('inf'))
 
     def _reset_components(self):
         nodes: dict = self.get_graph().get_all_v()

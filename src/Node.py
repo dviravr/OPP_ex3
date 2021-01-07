@@ -3,12 +3,12 @@ class Node(object):
     _dist: float
     _visited: bool
     _component: int
-    _pos : tuple
+    _pos: tuple
 
-    def __init__(self, key: int ,pos:tuple = None):
+    def __init__(self, key: int, pos: tuple = None):
         self._pos = pos
         self._key = key
-        self._dist = -1
+        self._dist = float('inf')
         self._visited = False
 
     def get_key(self) -> int:
@@ -31,14 +31,15 @@ class Node(object):
 
     def set_component(self, component: int) -> None:
         self._component = component
-    def get_pos(self) -> tuple :
+
+    def get_pos(self) -> tuple:
         return self._pos
-    def set_pos(self,pos: tuple)-> None:
+
+    def set_pos(self, pos: tuple) -> None:
         self._pos = pos
-"""
-    def __str__(self):
-        return "{" +
-        "id=" + self._key +
-        ", pos=" + _pos +
-        '}'
-"""
+
+    def get_x(self) -> float:
+        return self._pos[0]
+
+    def get_y(self) -> float:
+        return self._pos[1]
