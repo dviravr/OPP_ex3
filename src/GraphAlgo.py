@@ -46,7 +46,7 @@ class GraphAlgo(GraphAlgoInterface):
             return float('inf'), []
         self._reset_values()
         # calculate the shortest path from id1 to id2
-        shortest_path = self._reconstruct_path(id2, self._dijkstra(n1))
+        shortest_path = self._reconstruct_path(id2, self._dijkstra(n1, n2))
         # print(self.get_graph().get_all_v().get(id2).get_dist())
         return n2.get_dist(), shortest_path
 
@@ -84,17 +84,17 @@ class GraphAlgo(GraphAlgoInterface):
             plt.scatter(x, y, c='b', s=50)
             edges: dict = self.get_graph().all_out_edges_of_node(n)
             for e in edges:
-                # r = 0.03 * edges.get(e)
-                r = 0.1
+                r = 0.0001 * edges.get(e)
+                # r = 0.0001
                 dx = nodes.get(e).get_x() - x
                 dy = nodes.get(e).get_y() - y
                 ax.arrow(x, y,
-                         dx, dy, length_includes_head=True,
+                         dx, dy, length_includes_head=True, width=0.00001,
                          head_width=r, head_length=r, fc='k', ec='k')
         plt.show()
         return
 
-    def _dijkstra(self, src: Node) -> dict:
+    def _dijkstra(self, src: Node, dest: Node) -> dict:
         # create empty minimum heap
         # the elements in the heap should be a tuple that hold two elements
         # the first is the distance from the src node to the current node, the second is the node himself
@@ -108,7 +108,9 @@ class GraphAlgo(GraphAlgoInterface):
 
         while len(heap) > 0:
             # pooping out the minimum element from the heap
-            node = hq.heappop(heap)[1]
+            node: Node = hq.heappop(heap)[1]
+            if node.get_key() == dest.get_key():
+                break
             if not node.get_visited():
                 # if the node wasn't visited yet set the visit to true
                 node.set_visited(True)
