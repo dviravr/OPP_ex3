@@ -1,5 +1,5 @@
-from GraphInterface import GraphInterface
-from Node import Node
+from src.GraphInterface import GraphInterface
+from src.Node import Node
 
 
 class DiGraph(GraphInterface):
@@ -10,8 +10,16 @@ class DiGraph(GraphInterface):
     _edges: dict
     _inEdge: dict
     """
+    maxX: float
+    minX: float
+    maxY: float
+    minY: float
 
     def __init__(self):
+        self.maxX =None
+        self.minX =None
+        self.maxY =None
+        self.minY =None
         self._graphNodes: dict = {}
         self._modeCount: int = 0
         self._edgeCount: int = 0
@@ -47,7 +55,7 @@ class DiGraph(GraphInterface):
             return False
         if id1 not in self._graphNodes or id2 not in self._graphNodes:
             return False
-        if id2 in self.all_out_edges_of_node(id1):
+        if id2 in self.all_out_edges_of_node(id1) or weight < 0:
             return False
         self._modeCount += 1
         self._edgeCount += 1
@@ -66,6 +74,16 @@ class DiGraph(GraphInterface):
 
         self._edges[node_id] = {}
         self._inEdge[node_id] = {}
+
+        if pos is not None:
+            if self.maxX is None:
+                self.maxX, self.minX = pos[0], pos[0]
+                self.maxY, self.minY = pos[1], pos[1]
+            else:
+                self.maxX = max(self.maxX, pos[0])
+                self.minX = min(self.minX, pos[0])
+                self.minY = min(self.minY, pos[1])
+                self.maxY = max(self.maxY, pos[1])
         return True
 
     def remove_node(self, node_id: int) -> bool:
