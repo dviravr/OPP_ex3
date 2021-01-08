@@ -1,11 +1,12 @@
 import json
 import heapq as hq
-from Node import Node
+from src.Node import Node
 from typing import List
-from DiGraph import DiGraph
+from src.DiGraph import DiGraph
 import matplotlib.pyplot as plt
-from GraphInterface import GraphInterface
-from GraphAlgoInterface import GraphAlgoInterface
+from src.GraphInterface import GraphInterface
+from src.GraphAlgoInterface import GraphAlgoInterface
+from pathlib import Path
 
 
 class GraphAlgo(GraphAlgoInterface):
