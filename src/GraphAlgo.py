@@ -76,6 +76,7 @@ class GraphAlgo(GraphAlgoInterface):
 
     # todo:
     def plot_graph(self) -> None:
+        HSV = plt.get_cmap('Set3')
         nodes: dict = self.get_graph().get_all_v()
         ax = plt.axes()
         for n in nodes:
@@ -85,12 +86,13 @@ class GraphAlgo(GraphAlgoInterface):
             edges: dict = self.get_graph().all_out_edges_of_node(n)
             for e in edges:
                 # r = 0.03 * edges.get(e)
-                r = 0.1
+                r = 0.0001
                 dx = nodes.get(e).get_x() - x
                 dy = nodes.get(e).get_y() - y
                 ax.arrow(x, y,
-                         dx, dy, length_includes_head=True,
-                         head_width=r, head_length=r, fc='k', ec='k')
+                         dx, dy, length_includes_head=True, width=0.00001 , color=HSV(edges.get(e)),
+                         head_width=r, head_length=3*r )
+        plt.colorbar()
         plt.show()
         return
 
