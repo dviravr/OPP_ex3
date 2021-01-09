@@ -45,15 +45,15 @@ class DiGraph(GraphInterface):
     def add_edge(self, id1: int, id2: int, weight: float) -> bool:
         if self._graphNodes is None:
             return False
-        if id1 not in self._graphNodes or id2 not in self._graphNodes:
+        if id1 not in self._graphNodes or id2 not in self._graphNodes or id1 == id2:
             return False
         if id2 in self.all_out_edges_of_node(id1):
             return False
+        if id2 in self._edges[id1] and self._edges[id1][id2] == weight:
+            return False
         self._modeCount += 1
         self._edgeCount += 1
-        #  tmp : dict= {id2 : weight , id1 : weight}
         self._edges[id1].update({id2: weight})
-
         self._inEdge[id2].update({id1: weight})
         return True
 
