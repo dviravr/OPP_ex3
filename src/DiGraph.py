@@ -47,12 +47,12 @@ class DiGraph(GraphInterface):
             return False
         if id1 not in self._graphNodes or id2 not in self._graphNodes or id1 == id2:
             return False
-        if id2 in self.all_out_edges_of_node(id1):
-            return False
-        if id2 in self._edges[id1] and self._edges[id1][id2] == weight:
-            return False
+        if id2 in self._edges[id1]:
+            if self._edges[id1][id2] == weight:
+                return False
+        else:
+            self._edgeCount += 1
         self._modeCount += 1
-        self._edgeCount += 1
         self._edges[id1].update({id2: weight})
         self._inEdge[id2].update({id1: weight})
         return True
