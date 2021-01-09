@@ -2,6 +2,7 @@ import json
 import heapq as hq
 from Node import Node
 from typing import List
+from asyncio import Queue
 from DiGraph import DiGraph
 import matplotlib.pyplot as plt
 from GraphInterface import GraphInterface
@@ -147,31 +148,36 @@ class GraphAlgo(GraphAlgoInterface):
         # making two paths with the dfs algorithm, one of the graph and the second of the transpose graph
         # and returning them as a tuple
         self._reset_values()
-        dfs_path = self._dfs(id1, False)
+        dfs_path = self._bfs(id1, False)
         self._reset_values()
-        dfs_transpose_path = self._dfs(id1, True)
+        dfs_transpose_path = self._bfs(id1, True)
         return dfs_path, dfs_transpose_path
 
-    def _dfs(self, id1: int, reverse: bool, path: set = None) -> set:
-        # initializing the path to be an empty set if we didn't go him from the function call
-        if path is None:
-            path = set()
+    def _bfs(self, id1: int, reverse: bool) -> set:
+        # initializing the path to be an empty set
+        path = set()
+        # temp list that work like a queue
+        queue = []
         nodes: dict = self.get_graph().get_all_v()
         nodes.get(id1).set_visited(True)
+        queue.append(id1)
         # adding the node id to the path
         path.add(id1)
 
-        if reverse:
-            # if we are looking for the path in transpose graph take all in edges of a node
-            # else take all the out edges of a node
-            neighbors = self.get_graph().all_in_edges_of_node(id1)
-        else:
-            neighbors = self.get_graph().all_out_edges_of_node(id1)
-        if neighbors is not None:
+        while queue:
+            node: int = queue.pop(0)
+            if reverse:
+                # if we are looking for the path in transpose graph take all in edges of a node
+                # else take all the out edges of a node
+                neighbors = self.get_graph().all_in_edges_of_node(node)
+            else:
+                neighbors = self.get_graph().all_out_edges_of_node(node)
             for ni in neighbors:
-                # if we didn't visit the node visit him and his neighbors by recursive call to this method
+                # if we didn't visit the node visit him and his neighbors
                 if not nodes.get(ni).get_visited():
-                    self._dfs(ni, reverse, path)
+                    queue.append(ni)
+                    nodes.get(ni).set_visited(True)
+                    path.add(ni)
         return path
 
     def _reset_values(self):
