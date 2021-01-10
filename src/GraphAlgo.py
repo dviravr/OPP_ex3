@@ -59,7 +59,7 @@ class GraphAlgo(GraphAlgoInterface):
             return float('inf'), []
         self._reset_values()
         # calculate the shortest path from id1 to id2
-        shortest_path = self._reconstruct_path(id2, self._dijkstra(n1, n2))
+        shortest_path = self._reconstruct_path(id1, id2, self._dijkstra(n1, n2))
         # print(self.get_graph().get_all_v().get(id2).get_dist())
         return n2.get_dist(), shortest_path
 
@@ -67,8 +67,8 @@ class GraphAlgo(GraphAlgoInterface):
         # getting the two paths of the graph and the transpose graph
         component = []
         if self.get_graph() is not None and id1 in self.get_graph().get_all_v():
-            path, transpose_path = self._scc(id1)
-            for i in path:
+            bfs_path, transpose_path = self._scc(id1)
+            for i in bfs_path:
                 if i in transpose_path:
                     # looping over the paths and checking whether the node is in both paths
                     # if he is in both paths he is part of the component.
@@ -88,7 +88,6 @@ class GraphAlgo(GraphAlgoInterface):
                 components.append(self.connected_component(n))
         return components
 
-    # todo:
     def plot_graph(self) -> None:
         nodes: dict = self.get_graph().get_all_v()
         min_max_x, min_max_y = self._min_max_pos()
@@ -169,7 +168,8 @@ class GraphAlgo(GraphAlgoInterface):
         hq.heappush(heap, (0, src))
         # create new dictionary of the path, every key holds up his parent node
         # the parent of the src is None
-        path = {src: None}
+        # di_path = {src: None}
+        di_path = {}
 
         while len(heap) > 0:
             # pooping out the minimum element from the heap
@@ -192,20 +192,21 @@ class GraphAlgo(GraphAlgoInterface):
                         # updating the distance, adding the node t the heap and updating the parent of the node
                         ni.set_dist(dist)
                         hq.heappush(heap, (dist, ni))
-                        path[ni.get_key()] = node.get_key()
-        return path
+                        di_path[ni.get_key()] = node.get_key()
+        return di_path
 
-    def _reconstruct_path(self, dest: int, path: dict) -> list:
-        if path.get(dest) is None:
+    def _reconstruct_path(self, src: int, dest: int, full_path: dict) -> list:
+        if full_path.get(dest) is None:
             return []
         shortest_path = [dest]
-        parent = path.get(dest)
+        parent = full_path.get(dest)
         # reconstructing the path using the path dictionary into a list starting from the dest key
-        while parent is not None:
+        while parent != src:
             # wile we didn't get to the src node that his parent is None
             # insert the parent to the list and go to the next parent
             shortest_path.insert(0, parent)
-            parent = path.get(parent)
+            parent = full_path.get(parent)
+        shortest_path.insert(0, src)
         return shortest_path
 
     def _scc(self, id1: int) -> tuple:
@@ -219,14 +220,14 @@ class GraphAlgo(GraphAlgoInterface):
 
     def _bfs(self, id1: int, reverse: bool) -> set:
         # initializing the path to be an empty set
-        path = set()
+        bfs_path = set()
         # temp list that work like a queue
         queue = []
         nodes: dict = self.get_graph().get_all_v()
         nodes.get(id1).set_visited(True)
         queue.append(id1)
         # adding the node id to the path
-        path.add(id1)
+        bfs_path.add(id1)
 
         while queue:
             node: int = queue.pop(0)
@@ -241,8 +242,8 @@ class GraphAlgo(GraphAlgoInterface):
                 if not nodes.get(ni).get_visited():
                     queue.append(ni)
                     nodes.get(ni).set_visited(True)
-                    path.add(ni)
-        return path
+                    bfs_path.add(ni)
+        return bfs_path
 
     def _reset_values(self):
         nodes: dict = self.get_graph().get_all_v()

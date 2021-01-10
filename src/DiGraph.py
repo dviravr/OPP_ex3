@@ -1,17 +1,13 @@
-import math
-
 from src.GraphInterface import GraphInterface
 from src.Node import Node
 
 
 class DiGraph(GraphInterface):
-
     _graphNodes: dict
     _modeCount: int
     _edgeCount: int
     _edges: dict
     _inEdge: dict
-
 
     def __init__(self):
         self._graphNodes: dict = {}
@@ -113,3 +109,11 @@ class DiGraph(GraphInterface):
                 json_edges.append({"src": n, "dest": e, "w": graph_edges.get(e)})
         return {"Nodes": json_nodes, "Edges": json_edges}
 
+    def __eq__(self, other):
+        for n in self.get_all_v():
+            if self.get_all_v().get(n) != other.get_all_v().get(n):
+                return False
+            for e in self.all_out_edges_of_node(n):
+                if self.all_out_edges_of_node(n).get(e) != other.all_out_edges_of_node(n).get(e):
+                    return False
+        return True

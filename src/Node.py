@@ -49,3 +49,6 @@ class Node(object):
 
     def __repr__(self):
         return f'id: {self._key}, pos: {self._pos}'
+
+    def __eq__(self, other):
+        return self.get_key() == other.get_key() and self.get_pos() == other.get_pos()
