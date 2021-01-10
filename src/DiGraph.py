@@ -1,25 +1,19 @@
+import math
+
 from src.GraphInterface import GraphInterface
 from src.Node import Node
 
 
 class DiGraph(GraphInterface):
-    """
+
     _graphNodes: dict
     _modeCount: int
     _edgeCount: int
     _edges: dict
     _inEdge: dict
-    """
-    maxX: float
-    minX: float
-    maxY: float
-    minY: float
+
 
     def __init__(self):
-        self.maxX =None
-        self.minX =None
-        self.maxY =None
-        self.minY =None
         self._graphNodes: dict = {}
         self._modeCount: int = 0
         self._edgeCount: int = 0
@@ -53,16 +47,17 @@ class DiGraph(GraphInterface):
     def add_edge(self, id1: int, id2: int, weight: float) -> bool:
         if self._graphNodes is None:
             return False
-        if id1 not in self._graphNodes or id2 not in self._graphNodes:
+        if id1 not in self._graphNodes or id2 not in self._graphNodes or id1 == id2:
             return False
-        if id2 in self.all_out_edges_of_node(id1) or weight < 0:
-            return False
+        if id2 in self._edges[id1]:
+            if self._edges[id1][id2] == weight:
+                return False
+        else:
+            self._edgeCount += 1
         self._modeCount += 1
-        self._edgeCount += 1
-        #  tmp : dict= {id2 : weight , id1 : weight}
         self._edges[id1].update({id2: weight})
-
         self._inEdge[id2].update({id1: weight})
+
         return True
 
     def add_node(self, node_id: int, pos: tuple = None) -> bool:
@@ -75,15 +70,6 @@ class DiGraph(GraphInterface):
         self._edges[node_id] = {}
         self._inEdge[node_id] = {}
 
-        if pos is not None:
-            if self.maxX is None:
-                self.maxX, self.minX = pos[0], pos[0]
-                self.maxY, self.minY = pos[1], pos[1]
-            else:
-                self.maxX = max(self.maxX, pos[0])
-                self.minX = min(self.minX, pos[0])
-                self.minY = min(self.minY, pos[1])
-                self.maxY = max(self.maxY, pos[1])
         return True
 
     def remove_node(self, node_id: int) -> bool:
