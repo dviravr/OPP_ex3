@@ -24,26 +24,32 @@ class GraphAlgo(GraphAlgoInterface):
     def load_from_json(self, file_name: str) -> bool:
         if path.exists(file_name):
             graph: GraphInterface = DiGraph()
-            with open(file_name, 'r') as json_file:
-                data = json.load(json_file)
-                for n in data["Nodes"]:
-                    if "pos" in n:
-                        p = n["pos"].split(",")
-                        pos = float(p[0]), float(p[1]), float(p[2])
-                        graph.add_node(n["id"], pos)
-                    else:
-                        graph.add_node(n["id"])
-                for e in data["Edges"]:
-                    graph.add_edge(e["src"], e["dest"], e["w"])
-                self._graph = graph
-            return True
+            try:
+                with open(file_name, 'r') as json_file:
+                    data = json.load(json_file)
+                    for n in data["Nodes"]:
+                        if "pos" in n:
+                            p = n["pos"].split(",")
+                            pos = float(p[0]), float(p[1]), float(p[2])
+                            graph.add_node(n["id"], pos)
+                        else:
+                            graph.add_node(n["id"])
+                    for e in data["Edges"]:
+                        graph.add_edge(e["src"], e["dest"], e["w"])
+                    self._graph = graph
+                return True
+            except IOError as e:
+                print(e)
         return False
 
     def save_to_json(self, file_name: str) -> bool:
         if self.get_graph() is not None:
-            with open(file_name, 'w') as file:
-                json.dump(self.get_graph(), file, default=lambda o: o.__dict__(), indent=4)
-                return True
+            try:
+                with open(file_name, 'w') as file:
+                    json.dump(self.get_graph(), file, default=lambda o: o.__dict__(), indent=4)
+                    return True
+            except IOError as e:
+                print(e)
         return False
 
     def shortest_path(self, id1: int, id2: int) -> (float, list):
