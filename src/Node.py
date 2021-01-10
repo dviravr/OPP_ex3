@@ -51,4 +51,6 @@ class Node(object):
         return f'id: {self._key}, pos: {self._pos}'
 
     def __eq__(self, other):
+        if type(self) != type(other):
+            return False
         return self.get_key() == other.get_key() and self.get_pos() == other.get_pos()

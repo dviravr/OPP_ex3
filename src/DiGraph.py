@@ -110,10 +110,11 @@ class DiGraph(GraphInterface):
         return {"Nodes": json_nodes, "Edges": json_edges}
 
     def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        if self.get_all_v() != other.get_all_v():
+            return False
         for n in self.get_all_v():
-            if self.get_all_v().get(n) != other.get_all_v().get(n):
+            if self.all_out_edges_of_node(n) != other.all_out_edges_of_node(n):
                 return False
-            for e in self.all_out_edges_of_node(n):
-                if self.all_out_edges_of_node(n).get(e) != other.all_out_edges_of_node(n).get(e):
-                    return False
         return True
