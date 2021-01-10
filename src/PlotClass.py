@@ -2,7 +2,6 @@ from src import DiGraph
 from src import GraphAlgo
 from Node import Node
 import matplotlib as plt
-import NumPy as np
 
 class PlotClass:
     #needed for random pos

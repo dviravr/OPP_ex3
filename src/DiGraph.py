@@ -1,15 +1,17 @@
-from GraphInterface import GraphInterface
-from Node import Node
+import math
+
+from src.GraphInterface import GraphInterface
+from src.Node import Node
 
 
 class DiGraph(GraphInterface):
-    """
+
     _graphNodes: dict
     _modeCount: int
     _edgeCount: int
     _edges: dict
     _inEdge: dict
-    """
+
 
     def __init__(self):
         self._graphNodes: dict = {}
@@ -55,6 +57,7 @@ class DiGraph(GraphInterface):
         self._modeCount += 1
         self._edges[id1].update({id2: weight})
         self._inEdge[id2].update({id1: weight})
+
         return True
 
     def add_node(self, node_id: int, pos: tuple = None) -> bool:
@@ -66,6 +69,7 @@ class DiGraph(GraphInterface):
 
         self._edges[node_id] = {}
         self._inEdge[node_id] = {}
+
         return True
 
     def remove_node(self, node_id: int) -> bool:

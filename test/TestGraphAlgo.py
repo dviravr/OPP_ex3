@@ -1,6 +1,6 @@
 import unittest
-from GraphAlgo import GraphAlgo
-from GraphAlgoInterface import GraphAlgoInterface
+from src.GraphAlgo import GraphAlgo
+from src.GraphAlgoInterface import GraphAlgoInterface
 
 
 class TestGraphAlgo(unittest.TestCase):
@@ -25,6 +25,9 @@ class TestGraphAlgo(unittest.TestCase):
 
     def test_connected_components(self):
         self.assertEqual(len(self.ga.connected_components()), 4)
+
+    def test_plot(self):
+        self.ga.plot_graph()
 
 
 if __name__ == '__main__':

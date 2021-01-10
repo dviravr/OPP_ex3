@@ -1,12 +1,15 @@
-import json
 import heapq as hq
-from Node import Node
+import json
+import math
+import random
 from typing import List
-from asyncio import Queue
-from DiGraph import DiGraph
+
 import matplotlib.pyplot as plt
-from GraphInterface import GraphInterface
+
+from DiGraph import DiGraph
 from GraphAlgoInterface import GraphAlgoInterface
+from GraphInterface import GraphInterface
+from Node import Node
 
 
 class GraphAlgo(GraphAlgoInterface):
@@ -77,23 +80,132 @@ class GraphAlgo(GraphAlgoInterface):
 
     # todo:
     def plot_graph(self) -> None:
+        hsv = plt.get_cmap('Set3')
+        min_max: tuple = self._min_max_pos()
+        print((min_max[0][1] - min_max[0][0]) / 25)
+        print(self._max_dist())
+        self._random_pos(min_max)
+
+        set3 = plt.get_cmap('Set3')
         nodes: dict = self.get_graph().get_all_v()
         ax = plt.axes()
+        r = round((min_max[0][1] - min_max[0][0]) / 20)
+
         for n in nodes:
             x = (nodes.get(n).get_x())
             y = (nodes.get(n).get_y())
             plt.scatter(x, y, c='b', s=50)
+
             edges: dict = self.get_graph().all_out_edges_of_node(n)
             for e in edges:
-                r = 0.0001 * edges.get(e)
-                # r = 0.0001
+                # r = 0.03 * edges.get(e)
                 dx = nodes.get(e).get_x() - x
                 dy = nodes.get(e).get_y() - y
                 ax.arrow(x, y,
-                         dx, dy, length_includes_head=True, width=0.00001,
-                         head_width=r, head_length=r, fc='k', ec='k')
+                         dx, dy, length_includes_head=True, width=10 * r * edges.get(e), color=set3(edges.get(e)),
+                         head_width=10 * r * edges.get(e), head_length=10 * r * edges.get(e))
+        # plt.colorbar(ticks=[0.0,0.5,1.0,1.5,2.0,2.5,3.0], )
+        # plt.clim(0.0,100.0)
         plt.show()
         return
+
+    def _min_max_pos(self) -> tuple:
+        nodes: dict = self.get_graph().get_all_v()
+        max_x: float = float('-inf')
+        min_x: float = float('inf')
+        max_y: float = float('-inf')
+        min_y: float = float('inf')
+        maxD: float
+        for n in nodes:
+            pos: tuple = nodes.get(n).get_pos()
+            if pos is not None:
+                max_x = max(max_x, pos[0])
+                min_x = min(min_x, pos[0])
+                min_y = min(min_y, pos[1])
+                max_y = max(max_y, pos[1])
+        return (min_x, max_x), (min_y, max_y)
+
+    def _random_pos(self, min_max: tuple) -> None:
+        nodes: dict = self.get_graph().get_all_v()
+        pos_set: set = set()
+        for n in nodes:
+            if nodes.get(n).get_pos() is not None:
+                pos_set.add(n.get_x())
+
+        for n in nodes:
+            if nodes.get(n).get_pos() is None:
+                x = random.uniform(min_max[0][0], min_max[0][1])
+                while x in pos_set:
+                    x = random.uniform(min_max[0][0], min_max[0][1])
+                y = random.uniform(min_max[1][0], min_max[1][1])
+                # while y in g.posDict.values():
+                #    y = random.uniform(g.minY, g.maxY)
+                nodes.get(n).set_pos((x, y))
+                pos_set.add(x)
+            else:
+                x = (nodes.get(n).get_x())
+                y = (nodes.get(n).get_y())
+
+    def _max_dist(self) -> float:
+        nodes: dict = self.get_graph().get_all_v()
+        max_d: float = 0.0
+        p1: tuple = ()
+        p2: tuple = ()
+        for n in nodes:
+            p1 = nodes.get(n).get_pos()
+            for i in self.get_graph().all_out_edges_of_node(n):
+                p2 = nodes.get(i).get_pos()
+                max_d = max(max_d, math.dist(p1, p2))
+        return max_d
+
+    # def _min_max_pos(self) -> tuple:
+    #     nodes: dict = self.get_graph().get_all_v()
+    #     max_x: float = float('-inf')
+    #     min_x: float = float('inf')
+    #     max_y: float = float('-inf')
+    #     min_y: float = float('inf')
+    #     maxD: float
+    #     for n in nodes:
+    #         pos: tuple = nodes.get(n).get_pos()
+    #         if pos is not None:
+    #             max_x = max(max_x, pos[0])
+    #             min_x = min(min_x, pos[0])
+    #             min_y = min(min_y, pos[1])
+    #             max_y = max(max_y, pos[1])
+    #     return (min_x, max_x), (min_y, max_y)
+    #
+    # def _random_pos(self, min_max: tuple) -> None:
+    #     nodes: dict = self.get_graph().get_all_v()
+    #     pos_set: set = set()
+    #     for n in nodes:
+    #         if nodes.get(n).get_pos() is not None:
+    #             pos_set.add(n.get_x())
+    #
+    #     for n in nodes:
+    #         if nodes.get(n).get_pos() is None:
+    #             x = random.uniform(min_max[0][0], min_max[0][1])
+    #             while x in pos_set:
+    #                 x = random.uniform(min_max[0][0], min_max[0][1])
+    #             y = random.uniform(min_max[1][0], min_max[1][1])
+    #             # while y in g.posDict.values():
+    #             #    y = random.uniform(g.minY, g.maxY)
+    #             nodes.get(n).set_pos((x, y))
+    #             pos_set.add(x)
+    #         else:
+    #             x = (nodes.get(n).get_x())
+    #             y = (nodes.get(n).get_y())
+    #
+    # def max_dist(self) -> float:
+    #     nodes: dict = self.get_graph().get_all_v()
+    #     max_d: float = 0.0
+    #     p1: tuple = ()
+    #     p2: tuple = ()
+    #     for n in nodes:
+    #         p1 = nodes.get(n).get_pos()
+    #         for i in self.get_graph().all_out_edges_of_node(n):
+    #             p2 = nodes.get(i).get_pos()
+    #             max_d = max(max_d, math.dist(p1, p2))
+    #     return max_d
 
     def _dijkstra(self, src: Node, dest: Node) -> dict:
         # create empty minimum heap
