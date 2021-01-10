@@ -97,3 +97,19 @@ class DiGraph(GraphInterface):
         del (self._edges[node_id1][node_id2])
         del (self._inEdge[node_id2][node_id1])
         return True
+
+    def __dict__(self):
+        graph_nodes = self.get_all_v()
+        json_nodes = []
+        json_edges = []
+        for n in graph_nodes:
+            if graph_nodes.get(n).get_pos() is not None:
+                json_node = {"id": n, "pos": graph_nodes.get(n).get_pos_str()}
+            else:
+                json_node = {"id": n}
+            json_nodes.append(json_node)
+            graph_edges: dict = self.all_out_edges_of_node(n)
+            for e in graph_edges:
+                json_edges.append({"src": n, "dest": e, "w": graph_edges.get(e)})
+        return {"Nodes": json_nodes, "Edges": json_edges}
+
