@@ -1,15 +1,15 @@
-import json
 import heapq as hq
+import json
 import math
 import random
-
-from src.Node import Node
 from typing import List
-from src.DiGraph import DiGraph
+
 import matplotlib.pyplot as plt
-from src.GraphInterface import GraphInterface
-from src.GraphAlgoInterface import GraphAlgoInterface
-from pathlib import Path
+
+from DiGraph import DiGraph
+from GraphAlgoInterface import GraphAlgoInterface
+from GraphInterface import GraphInterface
+from Node import Node
 
 
 class GraphAlgo(GraphAlgoInterface):
@@ -50,7 +50,7 @@ class GraphAlgo(GraphAlgoInterface):
             return float('inf'), []
         self._reset_values()
         # calculate the shortest path from id1 to id2
-        shortest_path = self._reconstruct_path(id2, self._dijkstra(n1))
+        shortest_path = self._reconstruct_path(id2, self._dijkstra(n1, n2))
         # print(self.get_graph().get_all_v().get(id2).get_dist())
         return n2.get_dist(), shortest_path
 
@@ -80,16 +80,16 @@ class GraphAlgo(GraphAlgoInterface):
 
     # todo:
     def plot_graph(self) -> None:
-        HSV = plt.get_cmap('Set3')
-        minMax: tuple = self.min_max_pos()
-        print((minMax[0][1] - minMax[0][0]) / 25)
-        print(self.maxDist())
-        self.random_pos(minMax)
+        hsv = plt.get_cmap('Set3')
+        min_max: tuple = self._min_max_pos()
+        print((min_max[0][1] - min_max[0][0]) / 25)
+        print(self._max_dist())
+        self._random_pos(min_max)
 
         set3 = plt.get_cmap('Set3')
         nodes: dict = self.get_graph().get_all_v()
         ax = plt.axes()
-        r = round((minMax[0][1] - minMax[0][0]) / 20)
+        r = round((min_max[0][1] - min_max[0][0]) / 20)
 
         for n in nodes:
             x = (nodes.get(n).get_x())
@@ -109,105 +109,105 @@ class GraphAlgo(GraphAlgoInterface):
         plt.show()
         return
 
-    def min_max_pos(self) -> tuple:
+    def _min_max_pos(self) -> tuple:
         nodes: dict = self.get_graph().get_all_v()
-        maxX: float = float('-inf')
-        minX: float = float('inf')
-        maxY: float = float('-inf')
-        minY: float = float('inf')
+        max_x: float = float('-inf')
+        min_x: float = float('inf')
+        max_y: float = float('-inf')
+        min_y: float = float('inf')
         maxD: float
         for n in nodes:
             pos: tuple = nodes.get(n).get_pos()
             if pos is not None:
-                maxX = max(maxX, pos[0])
-                minX = min(minX, pos[0])
-                minY = min(minY, pos[1])
-                maxY = max(maxY, pos[1])
-        return (minX, maxX), (minY, maxY)
+                max_x = max(max_x, pos[0])
+                min_x = min(min_x, pos[0])
+                min_y = min(min_y, pos[1])
+                max_y = max(max_y, pos[1])
+        return (min_x, max_x), (min_y, max_y)
 
-    def random_pos(self, minMax: tuple) -> None:
+    def _random_pos(self, min_max: tuple) -> None:
         nodes: dict = self.get_graph().get_all_v()
-        posSet: set = {}
+        pos_set: set = set()
         for n in nodes:
             if nodes.get(n).get_pos() is not None:
-                posSet.add(n.get_x())
+                pos_set.add(n.get_x())
 
         for n in nodes:
             if nodes.get(n).get_pos() is None:
-                x = random.uniform(minMax[0][0], minMax[0][1])
-                while x in posSet:
-                    x = random.uniform(minMax[0][0], minMax[0][1])
-                y = random.uniform(minMax[1][0], minMax[1][1])
+                x = random.uniform(min_max[0][0], min_max[0][1])
+                while x in pos_set:
+                    x = random.uniform(min_max[0][0], min_max[0][1])
+                y = random.uniform(min_max[1][0], min_max[1][1])
                 # while y in g.posDict.values():
                 #    y = random.uniform(g.minY, g.maxY)
                 nodes.get(n).set_pos((x, y))
-                posSet.add(x)
+                pos_set.add(x)
             else:
                 x = (nodes.get(n).get_x())
                 y = (nodes.get(n).get_y())
 
-    def maxDist(self) -> float:
+    def _max_dist(self) -> float:
         nodes: dict = self.get_graph().get_all_v()
-        maxD: float = 0.0
+        max_d: float = 0.0
         p1: tuple = ()
         p2: tuple = ()
         for n in nodes:
             p1 = nodes.get(n).get_pos()
             for i in self.get_graph().all_out_edges_of_node(n):
                 p2 = nodes.get(i).get_pos()
-                maxD = max(maxD, math.dist(p1, p2))
-        return maxD
+                max_d = max(max_d, math.dist(p1, p2))
+        return max_d
 
-    def min_max_pos(self) -> tuple:
-        nodes: dict = self.get_graph().get_all_v()
-        maxX: float = float('-inf')
-        minX: float = float('inf')
-        maxY: float = float('-inf')
-        minY: float = float('inf')
-        maxD: float
-        for n in nodes:
-            pos: tuple = nodes.get(n).get_pos()
-            if pos is not None:
-                maxX = max(maxX, pos[0])
-                minX = min(minX, pos[0])
-                minY = min(minY, pos[1])
-                maxY = max(maxY, pos[1])
-        return (minX, maxX), (minY, maxY)
+    # def _min_max_pos(self) -> tuple:
+    #     nodes: dict = self.get_graph().get_all_v()
+    #     max_x: float = float('-inf')
+    #     min_x: float = float('inf')
+    #     max_y: float = float('-inf')
+    #     min_y: float = float('inf')
+    #     maxD: float
+    #     for n in nodes:
+    #         pos: tuple = nodes.get(n).get_pos()
+    #         if pos is not None:
+    #             max_x = max(max_x, pos[0])
+    #             min_x = min(min_x, pos[0])
+    #             min_y = min(min_y, pos[1])
+    #             max_y = max(max_y, pos[1])
+    #     return (min_x, max_x), (min_y, max_y)
+    #
+    # def _random_pos(self, min_max: tuple) -> None:
+    #     nodes: dict = self.get_graph().get_all_v()
+    #     pos_set: set = set()
+    #     for n in nodes:
+    #         if nodes.get(n).get_pos() is not None:
+    #             pos_set.add(n.get_x())
+    #
+    #     for n in nodes:
+    #         if nodes.get(n).get_pos() is None:
+    #             x = random.uniform(min_max[0][0], min_max[0][1])
+    #             while x in pos_set:
+    #                 x = random.uniform(min_max[0][0], min_max[0][1])
+    #             y = random.uniform(min_max[1][0], min_max[1][1])
+    #             # while y in g.posDict.values():
+    #             #    y = random.uniform(g.minY, g.maxY)
+    #             nodes.get(n).set_pos((x, y))
+    #             pos_set.add(x)
+    #         else:
+    #             x = (nodes.get(n).get_x())
+    #             y = (nodes.get(n).get_y())
+    #
+    # def max_dist(self) -> float:
+    #     nodes: dict = self.get_graph().get_all_v()
+    #     max_d: float = 0.0
+    #     p1: tuple = ()
+    #     p2: tuple = ()
+    #     for n in nodes:
+    #         p1 = nodes.get(n).get_pos()
+    #         for i in self.get_graph().all_out_edges_of_node(n):
+    #             p2 = nodes.get(i).get_pos()
+    #             max_d = max(max_d, math.dist(p1, p2))
+    #     return max_d
 
-    def random_pos(self, minMax: tuple) -> None:
-        nodes: dict = self.get_graph().get_all_v()
-        posSet: set = {}
-        for n in nodes:
-            if nodes.get(n).get_pos() is not None:
-                posSet.add(n.get_x())
-
-        for n in nodes:
-            if nodes.get(n).get_pos() is None:
-                x = random.uniform(minMax[0][0], minMax[0][1])
-                while x in posSet:
-                    x = random.uniform(minMax[0][0], minMax[0][1])
-                y = random.uniform(minMax[1][0], minMax[1][1])
-                # while y in g.posDict.values():
-                #    y = random.uniform(g.minY, g.maxY)
-                nodes.get(n).set_pos((x, y))
-                posSet.add(x)
-            else:
-                x = (nodes.get(n).get_x())
-                y = (nodes.get(n).get_y())
-
-    def maxDist(self) -> float:
-        nodes: dict = self.get_graph().get_all_v()
-        maxD: float = 0.0
-        p1: tuple = ()
-        p2: tuple = ()
-        for n in nodes:
-            p1 = nodes.get(n).get_pos()
-            for i in self.get_graph().all_out_edges_of_node(n):
-                p2 = nodes.get(i).get_pos()
-                maxD = max(maxD, math.dist(p1, p2))
-        return maxD
-
-    def _dijkstra(self, src: Node) -> dict:
+    def _dijkstra(self, src: Node, dest: Node) -> dict:
         # create empty minimum heap
         # the elements in the heap should be a tuple that hold two elements
         # the first is the distance from the src node to the current node, the second is the node himself
@@ -221,7 +221,9 @@ class GraphAlgo(GraphAlgoInterface):
 
         while len(heap) > 0:
             # pooping out the minimum element from the heap
-            node = hq.heappop(heap)[1]
+            node: Node = hq.heappop(heap)[1]
+            if node.get_key() == dest.get_key():
+                break
             if not node.get_visited():
                 # if the node wasn't visited yet set the visit to true
                 node.set_visited(True)
@@ -258,31 +260,36 @@ class GraphAlgo(GraphAlgoInterface):
         # making two paths with the dfs algorithm, one of the graph and the second of the transpose graph
         # and returning them as a tuple
         self._reset_values()
-        dfs_path = self._dfs(id1, False)
+        dfs_path = self._bfs(id1, False)
         self._reset_values()
-        dfs_transpose_path = self._dfs(id1, True)
+        dfs_transpose_path = self._bfs(id1, True)
         return dfs_path, dfs_transpose_path
 
-    def _dfs(self, id1: int, reverse: bool, path: set = None) -> set:
-        # initializing the path to be an empty set if we didn't go him from the function call
-        if path is None:
-            path = set()
+    def _bfs(self, id1: int, reverse: bool) -> set:
+        # initializing the path to be an empty set
+        path = set()
+        # temp list that work like a queue
+        queue = []
         nodes: dict = self.get_graph().get_all_v()
         nodes.get(id1).set_visited(True)
+        queue.append(id1)
         # adding the node id to the path
         path.add(id1)
 
-        if reverse:
-            # if we are looking for the path in transpose graph take all in edges of a node
-            # else take all the out edges of a node
-            neighbors = self.get_graph().all_in_edges_of_node(id1)
-        else:
-            neighbors = self.get_graph().all_out_edges_of_node(id1)
-        if neighbors is not None:
+        while queue:
+            node: int = queue.pop(0)
+            if reverse:
+                # if we are looking for the path in transpose graph take all in edges of a node
+                # else take all the out edges of a node
+                neighbors = self.get_graph().all_in_edges_of_node(node)
+            else:
+                neighbors = self.get_graph().all_out_edges_of_node(node)
             for ni in neighbors:
-                # if we didn't visit the node visit him and his neighbors by recursive call to this method
+                # if we didn't visit the node visit him and his neighbors
                 if not nodes.get(ni).get_visited():
-                    self._dfs(ni, reverse, path)
+                    queue.append(ni)
+                    nodes.get(ni).set_visited(True)
+                    path.add(ni)
         return path
 
     def _reset_values(self):

@@ -1,5 +1,6 @@
 import unittest
-from src.DiGraph import DiGraph
+
+from DiGraph import DiGraph
 
 
 class TestGraphDi(unittest.TestCase):
@@ -24,8 +25,6 @@ class TestGraphDi(unittest.TestCase):
         self.assertEqual({}, g.all_in_edges_of_node(0))
         self.assertEqual(0, g.get_mc())
         self.assertFalse(g.add_edge(0, 0, 0))
-
-
 
 
 if __name__ == '__main__':

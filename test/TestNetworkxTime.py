@@ -1,13 +1,10 @@
-import time
-import random
-import unittest
-import sys
 import json
+import random
+import sys
+import time
+import unittest
+
 import networkx as nx
-from DiGraph import DiGraph
-from GraphAlgo import GraphAlgo
-from GraphInterface import GraphInterface
-from GraphAlgoInterface import GraphAlgoInterface
 
 
 class TestNetworkxTime(unittest.TestCase):
@@ -43,9 +40,6 @@ class TestNetworkxTime(unittest.TestCase):
 
     def test_shortest_path_time(self):
         print(nx.shortest_path(self.g, self.n1, self.n2))
-
-    # def test_connected_component_time(self):
-    #     print(nx.node_connected_component(self.g, self.n1))
 
     def test_connected_components_time(self):
         print(nx.strongly_connected_components(self.g))

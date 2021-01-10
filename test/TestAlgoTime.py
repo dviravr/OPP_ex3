@@ -1,11 +1,9 @@
-import time
 import random
-import unittest
 import sys
-import networkx as nx
-from DiGraph import DiGraph
+import time
+import unittest
+
 from GraphAlgo import GraphAlgo
-from GraphInterface import GraphInterface
 from GraphAlgoInterface import GraphAlgoInterface
 
 
@@ -30,7 +28,6 @@ class TestAlgoTime(unittest.TestCase):
 
     def test_shortest_path_time(self):
         print(self.ga.shortest_path(self.n1, self.n2))
-    #     # self.ga.shortest_path(self.n1, self.n2)
 
     def test_connected_component_time(self):
         print(self.ga.connected_component(self.n2))
