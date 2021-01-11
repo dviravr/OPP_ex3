@@ -41,20 +41,24 @@ class DiGraph(GraphInterface):
         return self._modeCount
 
     def add_edge(self, id1: int, id2: int, weight: float) -> bool:
+        # cannot have negative weight
+        if weight < 0.0:
+            return False
+        # the graph is empty
         if self._graphNodes is None:
             return False
-        if id1 not in self._graphNodes or id2 not in self._graphNodes or id1 == id2:
+        # id1 or id2 don't exist
+        elif id1 not in self._graphNodes or id2 not in self._graphNodes or id1 == id2:
             return False
-        if id2 in self._edges[id1]:
-            if self._edges[id1][id2] == weight:
-                return False
+        elif id2 in self._edges[id1]:
+            # the edge already exist
+            return False
         else:
             self._edgeCount += 1
-        self._modeCount += 1
-        self._edges[id1].update({id2: weight})
-        self._inEdge[id2].update({id1: weight})
-
-        return True
+            self._modeCount += 1
+            self._edges[id1].update({id2: weight})
+            self._inEdge[id2].update({id1: weight})
+            return True
 
     def add_node(self, node_id: int, pos: tuple = None) -> bool:
         if node_id in self._graphNodes:
@@ -74,8 +78,10 @@ class DiGraph(GraphInterface):
         self._modeCount += 1
         for x in self._edges[node_id]:
             del (self._inEdge[x][node_id])
+            self._edgeCount -=1
         for x in self._inEdge[node_id]:
             del (self._edges[x][node_id])
+            self._edgeCount -=1
         del (self._graphNodes[node_id])
         del (self._edges[node_id])
         del (self._inEdge[node_id])

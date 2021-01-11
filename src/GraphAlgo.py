@@ -6,10 +6,10 @@ from typing import List
 
 import matplotlib.pyplot as plt
 
-from DiGraph import DiGraph
-from GraphAlgoInterface import GraphAlgoInterface
-from GraphInterface import GraphInterface
-from Node import Node
+from src.DiGraph import DiGraph
+from src.GraphAlgoInterface import GraphAlgoInterface
+from src.GraphInterface import GraphInterface
+from src.Node import Node
 
 
 class GraphAlgo(GraphAlgoInterface):
@@ -107,13 +107,18 @@ class GraphAlgo(GraphAlgoInterface):
                 # r = 0.03 * edges.get(e)
                 dx = nodes_pos.get(e)[0] - x
                 dy = nodes_pos.get(e)[1] - y
+                # Each arrow is in width and color corresponding to their weight,
+                #   The higher the weight they will get a darker color and the size of the arrow will increase
                 ax.arrow(x, y, dx, dy, length_includes_head=True, width=r,
                          color=set3(edges.get(e)), head_width=10 * r * edges.get(e),
                          head_length=10 * r * edges.get(e))
+        plt.colorbar()
         plt.show()
         return
 
     def _min_max_pos(self) -> tuple:
+        # the method find the range of the position of all nodes in the graph.
+        # return tuple that present the range in the x-axis and the y-axis.
         nodes: dict = self.get_graph().get_all_v()
         max_x: float = float('-inf')
         min_x: float = float('inf')
@@ -138,6 +143,9 @@ class GraphAlgo(GraphAlgoInterface):
         return (min_x, max_x), (min_y, max_y)
 
     def _random_pos(self, min_max_x: tuple, min_max_y: tuple) -> dict:
+        # There may be a situation where JSON did not get locations for all the vertices
+        # so to draw them on the graph we will chose random locations for those vertices that came without a location.
+
         nodes: dict = self.get_graph().get_all_v()
         pos_set: set = set()
         pos_dict: dict = {}
