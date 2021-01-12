@@ -119,6 +119,7 @@ class DiGraph(GraphInterface):
         return {"Nodes": json_nodes, "Edges": json_edges}
 
     def __eq__(self, other):
+        # check if graph equal to other graph
         if type(self) != type(other):
             return False
         if self.get_all_v() != other.get_all_v():
