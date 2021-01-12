@@ -53,4 +53,5 @@ of the node from which the edge came out and the value is the weight.
  
 * the method `save_to_json()` simply save the class's graph to given file in json format.
  the method `load_from_json()` simply load a graph to the class's graph from a given json file.
-  
+ 
+ ### Note: To run the project you will need to download ***matplotlib***
