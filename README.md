@@ -54,4 +54,13 @@ of the node from which the edge came out and the value is the weight.
 * the method `save_to_json()` simply save the class's graph to given file in json format.
  the method `load_from_json()` simply load a graph to the class's graph from a given json file.
  
+## Comparison
+Part of our assignment was to test how efficient our code. so we needed to compared our code with other codes that already exist.
+you can find in WIKI tab a comparison between three different code:
+* Our project
+* A project we have already done written in java https://github.com/dviravr/OPP_ex2.git
+* *networkX* library
+The results are interesting and worth a look.
+ 
+ 
  ### Note: To run the project you will need to download ***matplotlib***
