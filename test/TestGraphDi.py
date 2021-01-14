@@ -97,7 +97,6 @@ class TestGraphDi(unittest.TestCase):
         self.assertEqual({0: 1}, g.all_in_edges_of_node(1))
         self.assertEqual({}, g.all_out_edges_of_node(14))  # node dont exist should be empty
 
-
     def test_get_MC(self):
         g: GraphInterface = DiGraph()
         for n in range(4):
@@ -105,11 +104,11 @@ class TestGraphDi(unittest.TestCase):
         g.add_edge(0, 1, 1)
         g.add_edge(0, 2, 1)
         g.add_edge(0, 3, 1.1)
-        self.assertEqual(7,g.get_mc())
+        self.assertEqual(7, g.get_mc())  # after 7 change in the graph
         g.remove_node(0)
         # 1 node delete and 3 edge but only 1 mode_count add
-        self.assertEqual(0,g.e_size())
-        self.assertEqual(8,g.get_mc())
+        self.assertEqual(0, g.e_size())
+        self.assertEqual(8, g.get_mc())
 
 
 
