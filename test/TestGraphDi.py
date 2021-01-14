@@ -61,8 +61,9 @@ class TestGraphDi(unittest.TestCase):
         # can not add edge between node to himself.
         self.assertFalse(g.add_edge(0, 0, 1.2))
 
-    def test_remove_edge(self):
+    def test_remove_edge(self,):
         g: GraphInterface = DiGraph()
+        print(g.remove_edge(0,4))
         for n in range(4):
             g.add_node(n)
         self.assertFalse(g.remove_edge(0, 1))
@@ -94,11 +95,20 @@ class TestGraphDi(unittest.TestCase):
         print("should be {1: 1, 2: 1, 3: 1.1} we get:", g.all_out_edges_of_node(0))
         self.assertEqual({}, g.all_out_edges_of_node(1))
         self.assertEqual({}, g.all_out_edges_of_node(14))
-
         self.assertEqual({0: 1}, g.all_in_edges_of_node(1))
 
-
-
+    def test_get_MC(self):
+        g: GraphInterface = DiGraph()
+        for n in range(4):
+            g.add_node(n)
+        g.add_edge(0, 1, 1)
+        g.add_edge(0, 2, 1)
+        g.add_edge(0, 3, 1.1)
+        self.assertEqual(7,g.get_mc())
+        g.remove_node(0)
+        # 1 node delete and 3 edge but only 1 mode_count add
+        self.assertEqual(0,g.e_size())
+        self.assertEqual(8,g.get_mc())
 
 
 
