@@ -5,6 +5,7 @@ from os import path
 from typing import List
 
 import matplotlib.pyplot as plt
+from numpy.ma import sqrt
 
 from src.DiGraph import DiGraph
 from src.GraphAlgoInterface import GraphAlgoInterface
@@ -92,29 +93,41 @@ class GraphAlgo(GraphAlgoInterface):
         nodes: dict = self.get_graph().get_all_v()
         min_max_x, min_max_y = self._min_max_pos()
         nodes_pos = self._random_pos(min_max_x, min_max_y)
-
-        set3 = plt.get_cmap('Set3')
+        maxE: float = self.max_edge_w()
         ax = plt.axes()
         r = (min_max_x[1] - min_max_x[0]) / 1000
 
         for n in nodes:
             x = nodes_pos.get(n)[0]
             y = nodes_pos.get(n)[1]
-            plt.scatter(x, y, c='b', s=50)
 
             edges: dict = self.get_graph().all_out_edges_of_node(n)
             for e in edges:
                 # r = 0.03 * edges.get(e)
                 dx = nodes_pos.get(e)[0] - x
                 dy = nodes_pos.get(e)[1] - y
-                # Each arrow is in width and color corresponding to their weight,
-                #   The higher the weight they will get a darker color and the size of the arrow will increase
+                print(float(sqrt(dy**2 + dx**2)/3 * edges.get(e))*maxE)
+        #   Each arrow is in width corresponding to their weight,
+        #   The higher the weight they will be bigger the size of the head of the arrow will increase
+        #   So that the side with the largest weight will be one-fifth of the side
                 ax.arrow(x, y, dx, dy, length_includes_head=True, width=r,
-                         color=set3(edges.get(e)), head_width=10 * r * edges.get(e),
-                         head_length=10 * r * edges.get(e))
-        plt.colorbar()
+                         color='b', head_width=(sqrt(dy**2 + dx**2)/5 * edges.get(e))/maxE,
+                         head_length=(sqrt(dy**2 + dx**2)/5 * edges.get(e))/maxE, fc='c')
+
+            plt.scatter(x, y, c='k', s=50)
+            ax.text(x - 10 * r, y + 10 * r, str(nodes.get(n).get_key()), color='r', fontsize=10, fontweight='bold')
+
         plt.show()
         return
+
+    def max_edge_w(self) -> float:
+        # The method returns the weight of the edge with the largest weight.
+        # use in plot_graph
+        maxE: float = 0
+        for n in self.get_graph().get_all_v():
+            for e in self.get_graph().all_out_edges_of_node(n):
+                maxE = max(maxE, self.get_graph().all_out_edges_of_node(n).get(e))
+        return maxE
 
     def _min_max_pos(self) -> tuple:
         # the method find the range of the position of all nodes in the graph.
